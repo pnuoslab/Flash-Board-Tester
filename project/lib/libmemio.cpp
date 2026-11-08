@@ -71,7 +71,7 @@ static void __dm_intr_handler(bdbm_drv_info_t *bdi, bdbm_llm_req_t *r) {
     my_algo_req->end_req(my_algo_req);
   } else {
     if (r->bad_seg_func != NULL) {
-      r->bad_seg_func(r->segnum, r->isbad);
+      r->bad_seg_func(r->segnum, r->isbad, r->bad_seg_ctx);
     }
   }
   __memio_free_llm_req((memio_t *)bdi->private_data, r);
@@ -352,7 +352,7 @@ int memio_comp_write(memio_t *mio, uint32_t lba, uint64_t len, uint8_t *data,
 }
 
 int memio_trim(memio_t *mio, uint32_t lba, uint64_t len,
-               void (*end_req)(uint64_t, uint8_t)) {
+               void (*end_req)(uint64_t, uint8_t, void *), void *ctx) {
   bdbm_mutex_lock(&mio->req_mutex);
   bdbm_llm_req_t *r = NULL;
   bdbm_dm_inf_t *dm = mio->bdi.ptr_dm_inf;
@@ -371,6 +371,7 @@ int memio_trim(memio_t *mio, uint32_t lba, uint64_t len,
       /* get an empty llm_req */
       r = __memio_alloc_llm_req(mio, false);
       r->bad_seg_func = end_req;
+      r->bad_seg_ctx = ctx;
 
       bdbm_bug_on(!r);
 
@@ -411,6 +412,7 @@ int memio_trim_a_block(memio_t *mio, uint32_t lba) {
   /* fill up logaddr; note that phyaddr is not used here */
   r = __memio_alloc_llm_req(mio, false);
   r->bad_seg_func = NULL;
+  r->bad_seg_ctx = NULL;
 
   bdbm_bug_on(!r);
 

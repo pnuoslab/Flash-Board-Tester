@@ -43,7 +43,8 @@ THE SOFTWARE.
 static bool badsegment[NR_BLOCKS_PER_CHIP];
 static gint is_init[NR_BLOCKS_PER_CHIP];
 
-static void erase_end_req(uint64_t seg_num, uint8_t isbad) {
+static void erase_end_req(uint64_t seg_num, uint8_t isbad, void *ctx) {
+  (void)ctx;
   /* managing block mapping when "isbad" set to 1 which mean the segments has
    * some bad blocks*/
   if (isbad) {
@@ -82,7 +83,8 @@ int main(int argc, char **argv) {
   for (uint32_t block = WRITE_START; block < NR_BLOCKS_PER_CHIP; block++) {
     addr.lpn = 0;
     addr.format.block = block;
-    memio_trim(mio, addr.lpn, PAGE_PER_SEGMENT * PAGE_SIZE, erase_end_req);
+    memio_trim(mio, addr.lpn, PAGE_PER_SEGMENT * PAGE_SIZE, erase_end_req,
+               NULL);
   }
 
   sleep(1); // warming up the device
