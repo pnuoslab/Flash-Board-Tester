@@ -204,7 +204,8 @@ typedef struct {
 	int dmaTag; //koo
 //	int8_t (*end_req) (void*);
 	void *req; //koo
-	void (*bad_seg_func)(uint64_t,uint8_t);
+	void (*bad_seg_func)(uint64_t,uint8_t,void *);
+	void *bad_seg_ctx;
 	uint64_t segnum;
 	uint8_t isbad;
 	

@@ -63,13 +63,17 @@ void memio_close(memio_t *mio);
    page per segment.
                 the "lba" of memio_trim_a_block should be aligend by 256 which
    is # of page per block.
+                the "end_req" of memio_trim is called once per block erase, with
+   the segment number derived from "lba", whether that block failed to erase,
+   and the "ctx" that was passed to memio_trim. It runs on the device manager's
+   thread, so it must not block or allocate.
  */
 int memio_read(memio_t *mio, uint32_t lba, uint64_t len, uint8_t *data,
                int async, void *req, int dmaTag);
 int memio_write(memio_t *mio, uint32_t lba, uint64_t len, uint8_t *data,
                 int async, void *req, int dmaTag);
 int memio_trim(memio_t *mio, uint32_t lba, uint64_t len,
-               void (*end_req)(uint64_t, uint8_t));
+               void (*end_req)(uint64_t, uint8_t, void *), void *ctx);
 int memio_trim_a_block(memio_t *mio, uint32_t lba);
 
 /*wait until all requests are done.*/
