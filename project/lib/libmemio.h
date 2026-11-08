@@ -66,7 +66,8 @@ void memio_close(memio_t *mio);
                 the "end_req" of memio_trim is called once per block erase, with
    the segment number derived from "lba", whether that block failed to erase,
    and the "ctx" that was passed to memio_trim. It runs on the device manager's
-   thread, so it must not block or allocate.
+   thread, so it must not block or allocate, and "ctx" has to stay valid until
+   the last of those callbacks lands.
  */
 int memio_read(memio_t *mio, uint32_t lba, uint64_t len, uint8_t *data,
                int async, void *req, int dmaTag);
